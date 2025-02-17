@@ -82,6 +82,17 @@ CREATE TABLE IF NOT EXISTS project_showcases (
     FOREIGN KEY (user_id, guild_id) REFERENCES users(user_id, guild_id)
 );
 
+-- Project likes table to track user interactions
+CREATE TABLE IF NOT EXISTS project_likes (
+    id SERIAL PRIMARY KEY,
+    project_id INTEGER REFERENCES project_showcases(id) ON DELETE CASCADE,
+    user_id VARCHAR(255) NOT NULL,
+    guild_id VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(project_id, user_id, guild_id),
+    FOREIGN KEY (user_id, guild_id) REFERENCES users(user_id, guild_id)
+);
+
 -- Skill badges table
 CREATE TABLE IF NOT EXISTS skill_badges (
     id SERIAL PRIMARY KEY,

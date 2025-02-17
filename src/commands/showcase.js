@@ -46,31 +46,53 @@ module.exports = {
             const title = interaction.options.getString('title');
             const description = interaction.options.getString('description');
             const projectUrl = interaction.options.getString('url');
-            const thumbnailUrl = interaction.options.getString('thumbnail') || null;
-            const technologies = interaction.options.getString('technologies')?.split(',').map(tech => tech.trim()) || [];
+            const thumbnailUrl = interaction.options.getString('thumbnail');
+            const technologies = interaction.options.getString('technologies');
+
+            // Validate URLs
+            try {
+                if (projectUrl) new URL(projectUrl);
+                if (thumbnailUrl) new URL(thumbnailUrl);
+            } catch (error) {
+                return interaction.reply({ 
+                    content: 'Please provide valid URLs for the project and thumbnail.',
+                    ephemeral: true 
+                });
+            }
+
+            // Process technologies
+            const techArray = technologies ? technologies.split(',').map(tech => tech.trim()).filter(tech => tech.length > 0) : [];
 
             try {
                 const result = await db.query(
                     'INSERT INTO project_showcases (user_id, guild_id, title, description, project_url, thumbnail_url, technologies) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id',
-                    [interaction.user.id, interaction.guildId, title, description, projectUrl, thumbnailUrl, technologies]
+                    [interaction.user.id, interaction.guildId, title, description, projectUrl, thumbnailUrl, techArray]
                 );
 
-                const embed = new EmbedBuilder()
-                    .setColor('#00ff00')
-                    .setTitle('🎉 Project Showcase Added!')
-                    .setDescription(`Your project **${title}** has been added to the showcase!`)
+                const projectEmbed = new EmbedBuilder()
+                    .setColor('#5865F2')
+                    .setTitle(`🚀 ${title}`)
+                    .setDescription(description)
                     .addFields(
-                        { name: 'Description', value: description },
-                        { name: 'Project URL', value: projectUrl },
-                        { name: 'Technologies', value: technologies.length ? technologies.join(', ') : 'Not specified' }
+                        { name: '🔗 Project Link', value: `[View Project](${projectUrl})`, inline: true },
+                        { name: '👤 Created By', value: `${interaction.user}`, inline: true },
+                        { name: '❤️ Likes', value: '0', inline: true }
                     )
+                    .setFooter({ text: 'Project Showcase • Click 👍 to like', iconURL: interaction.guild.iconURL() })
                     .setTimestamp();
 
-                if (thumbnailUrl) {
-                    embed.setThumbnail(thumbnailUrl);
+                if (techArray.length > 0) {
+                    projectEmbed.addFields([
+                        { name: '🛠️ Technologies', value: techArray.map(tech => `\`${tech}\``).join(' ') }
+                    ]);
                 }
 
-                await interaction.reply({ embeds: [embed] });
+                if (thumbnailUrl) {
+                    projectEmbed.setThumbnail(thumbnailUrl);
+                }
+
+                const message = await interaction.reply({ embeds: [projectEmbed], fetchReply: true });
+                await message.react('👍');
             } catch (error) {
                 console.error('Error adding project showcase:', error);
                 await interaction.reply({ content: 'There was an error adding your project showcase.', ephemeral: true });
@@ -103,7 +125,7 @@ module.exports = {
                     .setTimestamp();
 
                 projects.forEach((project, index) => {
-                    const techStack = project.technologies.length
+                    const techStack = project.technologies && project.technologies.length > 0
                         ? project.technologies.map(tech => `\`${tech}\``).join(' ')
                         : 'No technologies specified';
 
@@ -114,11 +136,11 @@ module.exports = {
                             inline: false
                         }
                     ]);
-
-                    if (project.thumbnail_url) {
-                        embed.setImage(project.thumbnail_url);
-                    }
                 });
+
+                if (projects[0].thumbnail_url) {
+                    embed.setThumbnail(projects[0].thumbnail_url);
+                }
 
                 await interaction.reply({ embeds: [embed] });
             } catch (error) {
