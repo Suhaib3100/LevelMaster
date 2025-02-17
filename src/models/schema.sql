@@ -1,10 +1,10 @@
--- Users table to store user information and levels (max 10 levels)
+-- Users table to store user information and levels
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     user_id VARCHAR(255) NOT NULL,
     guild_id VARCHAR(255) NOT NULL,
     xp INTEGER DEFAULT 0,
-    level INTEGER DEFAULT 0 CHECK (level >= 0 AND level <= 10),
+    level INTEGER DEFAULT 0 CHECK (level >= 0),
     message_count INTEGER DEFAULT 0,
     last_message_timestamp TIMESTAMP,
     voice_join_timestamp TIMESTAMP,
@@ -16,6 +16,22 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, guild_id)
 );
+
+-- Add missing columns if they don't exist
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'github_username') THEN
+        ALTER TABLE users ADD COLUMN github_username VARCHAR(255);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'primary_skill') THEN
+        ALTER TABLE users ADD COLUMN primary_skill VARCHAR(50);
+    END IF;
+    
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'users' AND column_name = 'portfolio_url') THEN
+        ALTER TABLE users ADD COLUMN portfolio_url TEXT;
+    END IF;
+END $$;
 
 -- Achievements table to track user achievements
 CREATE TABLE IF NOT EXISTS achievements (

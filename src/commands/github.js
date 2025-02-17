@@ -35,10 +35,14 @@ module.exports = {
                 const response = await axios.get(`https://api.github.com/users/${githubUsername}`);
                 const githubData = response.data;
 
-                // Update the user's GitHub username in the database
-                await db.query(
-                    'UPDATE users SET github_username = $1 WHERE user_id = $2 AND guild_id = $3',
-                    [githubUsername, interaction.user.id, interaction.guildId]
+                // First, check if user exists and create if not
+                const userCheck = await db.query(
+                    `INSERT INTO users (user_id, guild_id, github_username) 
+                    VALUES ($1, $2, $3) 
+                    ON CONFLICT (user_id, guild_id) 
+                    DO UPDATE SET github_username = $3 
+                    RETURNING *`,
+                    [interaction.user.id, interaction.guildId, githubUsername]
                 );
 
                 const embed = new EmbedBuilder()
@@ -56,8 +60,18 @@ module.exports = {
                 await interaction.reply({ embeds: [embed] });
             } catch (error) {
                 console.error('Error linking GitHub profile:', error);
+                let errorMessage = 'An unexpected error occurred while linking your GitHub profile.';
+                
+                if (error.response) {
+                    if (error.response.status === 404) {
+                        errorMessage = `The GitHub username '${githubUsername}' does not exist. Please check the username and try again.`;
+                    } else if (error.response.status === 403) {
+                        errorMessage = 'Rate limit exceeded. Please try again later.';
+                    }
+                }
+
                 await interaction.reply({
-                    content: 'Unable to find or link GitHub profile. Please check the username and try again.',
+                    content: errorMessage,
                     ephemeral: true
                 });
             }
