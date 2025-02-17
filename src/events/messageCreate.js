@@ -31,8 +31,8 @@ module.exports = {
 
             // Update or create user XP in database
             const result = await pool.query(
-                'INSERT INTO users (user_id, xp, level) VALUES ($1, $2, 1) ON CONFLICT (user_id) DO UPDATE SET xp = users.xp + $2 RETURNING xp, level',
-                [message.author.id, xpGain]
+                'INSERT INTO users (user_id, guild_id, xp, level) VALUES ($1, $2, $3, 1) ON CONFLICT (user_id, guild_id) DO UPDATE SET xp = users.xp + $3 RETURNING xp, level',
+                [message.author.id, message.guild.id, xpGain]
             );
 
             const { xp, level } = result.rows[0];

@@ -29,11 +29,20 @@ module.exports = {
                 inviter = usedInvite.inviter?.tag || 'Unknown';
             }
 
+            // Get guild icon URL
+            const guildIconURL = member.guild.iconURL({ format: 'png', size: 256 });
+            
+            // Get inviter avatar URL
+            const inviterUser = usedInvite?.inviter;
+            const inviterAvatarURL = inviterUser ? inviterUser.displayAvatarURL({ format: 'png', size: 256 }) : null;
+
             // Create welcome card
             const welcomeCard = await createWelcomeCard(
                 member.user.username,
                 inviter,
-                member.guild.memberCount
+                member.guild.memberCount,
+                guildIconURL,
+                inviterAvatarURL
             );
 
             // Create attachment
