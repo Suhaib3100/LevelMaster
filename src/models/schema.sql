@@ -55,17 +55,32 @@ CREATE TABLE IF NOT EXISTS user_achievements (
 );
 
 -- Role rewards table with predefined levels
+DROP TABLE IF EXISTS role_rewards CASCADE;
 CREATE TABLE IF NOT EXISTS role_rewards (
     id SERIAL PRIMARY KEY,
     guild_id VARCHAR(255) NOT NULL,
     role_id VARCHAR(255) NOT NULL,
     level_name VARCHAR(50) NOT NULL,
-    required_level INTEGER NOT NULL CHECK (required_level >= 0 AND required_level <= 10),
+    required_level INTEGER NOT NULL CHECK (required_level >= 0 AND required_level <= 20),
     role_color VARCHAR(7),
     role_permissions BIGINT,
+    tier_order INTEGER NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(guild_id, role_id)
+    UNIQUE(guild_id, role_id),
+    UNIQUE(guild_id, tier_order)
 );
+
+-- Default role tiers
+INSERT INTO role_rewards (guild_id, role_id, level_name, required_level, role_color, tier_order)
+VALUES
+    ('DEFAULT', 'TEMPLATE', 'Novice Developer', 1, '#4A90E2', 1),
+    ('DEFAULT', 'TEMPLATE', 'Junior Engineer', 4, '#50E3C2', 2),
+    ('DEFAULT', 'TEMPLATE', 'Associate Developer', 7, '#B8E986', 3),
+    ('DEFAULT', 'TEMPLATE', 'Senior Developer', 10, '#F5A623', 4),
+    ('DEFAULT', 'TEMPLATE', 'Lead Engineer', 13, '#E74C3C', 5),
+    ('DEFAULT', 'TEMPLATE', 'Technical Architect', 16, '#9B59B6', 6),
+    ('DEFAULT', 'TEMPLATE', 'Principal Engineer', 19, '#8E44AD', 7)
+ON CONFLICT DO NOTHING;
 
 -- Project showcase table
 CREATE TABLE IF NOT EXISTS project_showcases (

@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, PermissionFlagsBits, AttachmentBuilder } = require('discord.js');
 const db = require('../config/database');
 const CanvasUtils = require('../utils/canvasUtils');
+const RoleManager = require('../utils/roleManager');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -18,6 +19,7 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
     async execute(interaction) {
+        // Defer the reply immediately to prevent interaction timeout
         await interaction.deferReply();
 
         try {
@@ -45,13 +47,22 @@ module.exports = {
             const levelUpImage = await CanvasUtils.createLevelUpImage(targetUser, newLevel);
             const attachment = new AttachmentBuilder(levelUpImage, { name: 'levelup.png' });
 
+            // Update user's role based on new level
+            const member = await interaction.guild.members.fetch(targetUser.id);
+            await RoleManager.updateUserRole(member, newLevel);
+
+            // Use editReply instead of reply since we deferred the reply
             await interaction.editReply({
                 content: `Successfully set ${targetUser.username}'s level to ${newLevel}!`,
                 files: [attachment]
             });
         } catch (error) {
             console.error('Error in setlevel command:', error);
-            await interaction.editReply('There was an error while setting the user\'s level!');
+            // Use editReply for error message as well
+            await interaction.editReply({
+                content: 'There was an error while executing this command!',
+                ephemeral: true
+            }).catch(console.error);
         }
     }
 };

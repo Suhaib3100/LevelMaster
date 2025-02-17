@@ -1,12 +1,19 @@
 # LevelMaster - Professional Developer Community Discord Bot
 
-LevelMaster is a sophisticated Discord bot designed specifically for developer and designer communities. It features a professional 10-tier leveling system, skill tracking, project showcases, and automated role management. Built with Discord.js, it creates an engaging environment for technical communities to grow and collaborate.
+LevelMaster is a sophisticated Discord bot designed specifically for developer and designer communities. It features a professional 10-tier leveling system with automatic role rewards, skill tracking, project showcases, and GitHub integration. Built with Discord.js, it creates an engaging environment for technical communities to grow and collaborate.
 
 ## ✨ Features
 
+- **Advanced Role Management System**
+  - Automatic role assignment based on user levels
+  - Configurable role rewards for different level milestones
+  - Seamless role progression as users level up
+  - Administrative tools for role configuration
+
 - **Professional 10-Tier System**
   - Structured progression from Apprentice to Tech Lead
-  - Automatic role assignment with custom permissions
+  - Visual level-up notifications with custom cards
+  - Experience (XP) tracking for user activities
   - Specialized tracks for Developers and Designers
 
 - **Achievement System**
@@ -66,10 +73,16 @@ LevelMaster is a sophisticated Discord bot designed specifically for developer a
 ## 📝 Commands
 
 ### Level Management
-- `/rank` - Display your current level and XP
-- `/leaderboard` - Show server leaderboard
-- `/setlevel` - Admin command to set user level
+- `/rank` - Display your current level and XP with a beautifully designed rank card
+- `/leaderboard` - Show server leaderboard with top members
+- `/setlevel` - Admin command to set user level (includes level-up notification)
 - `/reset` - Admin command to reset user stats
+
+### Role Management
+- `/configroles` - Configure level-based role rewards (Admin only)
+  - Set roles for different level milestones
+  - Manage role hierarchy
+  - View current role configuration
 
 ### Professional Development
 - `/showcase add` - Add a new project to your showcase
@@ -81,6 +94,13 @@ LevelMaster is a sophisticated Discord bot designed specifically for developer a
 
 ## ⚙️ Configuration
 
+### Role Management Setup
+Administrators can configure role rewards using the `/configroles` command. This allows you to:
+- Assign roles to specific level milestones
+- Set up automatic role progression
+- Manage role hierarchies effectively
+
+### Environment Variables
 The bot can be configured through environment variables. See `.env.example` for available options.
 
 ## 🤝 Contributing
@@ -99,18 +119,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- [Discord.js](https://discord.js.org/)
-- [node-postgres](https://node-postgres.com/)
-- [Canvas](https://www.npmjs.com/package/canvas)
-
-## 📞 Support
-
-If you need help or have questions, feel free to:
-
-- Open an issue
-- Join our [Discord support server]()
-- Check out the [documentation](your-docs-link)
-
----
-
-Made with ❤️ for the Discord community
+- Discord.js community for their excellent documentation
+- Contributors who have helped improve the bot
+- The developer community for their feedback and support

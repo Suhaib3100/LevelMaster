@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const db = require('../config/database');
+const RoleManager = require('../utils/roleManager');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -40,10 +41,34 @@ module.exports = {
                 .addFields(
                     { name: 'Level', value: user.level.toString(), inline: true },
                     { name: 'XP', value: `${user.xp}/${nextLevelXP}`, inline: true },
-                    { name: 'Messages', value: user.messageCount.toString(), inline: true },
+                    { name: 'Messages', value: user.message_count.toString(), inline: true },
                     { name: 'Progress', value: progressBar }
                 )
-                .setFooter({ text: `${progress.toFixed(1)}% to next level` })
+
+            // Get current role information
+            const roleResult = await db.query(
+                'SELECT * FROM role_rewards WHERE guild_id = $1 AND required_level <= $2 ORDER BY required_level DESC LIMIT 1',
+                [interaction.guild.id, user.level]
+            );
+
+            if (roleResult.rows.length > 0) {
+                const currentRole = roleResult.rows[0];
+                embed.addFields({ name: 'Current Role', value: currentRole.level_name, inline: true });
+
+                // Get next role information
+                const nextRoleResult = await db.query(
+                    'SELECT * FROM role_rewards WHERE guild_id = $1 AND required_level > $2 ORDER BY required_level ASC LIMIT 1',
+                    [interaction.guild.id, user.level]
+                );
+
+                if (nextRoleResult.rows.length > 0) {
+                    const nextRole = nextRoleResult.rows[0];
+                    const levelsUntilNext = nextRole.required_level - user.level;
+                    embed.addFields({ name: 'Next Role', value: `${nextRole.level_name} (in ${levelsUntilNext} levels)`, inline: true });
+                }
+            }
+
+            embed.setFooter({ text: `${progress.toFixed(1)}% to next level` })
                 .setTimestamp();
 
             await interaction.editReply({ embeds: [embed] });
