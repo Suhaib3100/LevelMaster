@@ -1,23 +1,24 @@
-# LevelMaster - Advanced Discord Leveling Bot
+# LevelMaster - Professional Developer Community Discord Bot
 
-LevelMaster is a feature-rich Discord bot that provides an advanced leveling system with achievements, role rewards, and detailed user statistics. Built with Discord.js, it offers a seamless experience for managing user engagement and activity tracking in your Discord server.
+LevelMaster is a sophisticated Discord bot designed specifically for developer and designer communities. It features a professional 10-tier leveling system, skill tracking, project showcases, and automated role management. Built with Discord.js, it creates an engaging environment for technical communities to grow and collaborate.
 
 ## ✨ Features
 
-- **Advanced XP System**
-  - Customizable XP gain from messages and voice activity
-  - Anti-spam protection with configurable cooldowns
-  - Voice channel activity tracking
+- **Professional 10-Tier System**
+  - Structured progression from Apprentice to Tech Lead
+  - Automatic role assignment with custom permissions
+  - Specialized tracks for Developers and Designers
 
 - **Achievement System**
   - Unlockable achievements based on various activities
   - Custom achievement icons and descriptions
   - Track user progress and milestones
 
-- **Role Rewards**
-  - Automatic role assignment based on user levels
-  - Configurable level requirements for each role
-  - Server-specific role reward settings
+- **Professional Development Tracking**
+  - GitHub profile integration
+  - Portfolio showcase feature
+  - Skill badges for technical expertise
+  - Project showcase with community feedback
 
 - **User Statistics**
   - Detailed leaderboards for XP and levels
@@ -64,10 +65,19 @@ LevelMaster is a feature-rich Discord bot that provides an advanced leveling sys
 
 ## 📝 Commands
 
+### Level Management
 - `/rank` - Display your current level and XP
 - `/leaderboard` - Show server leaderboard
 - `/setlevel` - Admin command to set user level
 - `/reset` - Admin command to reset user stats
+
+### Professional Development
+- `/showcase add` - Add a new project to your showcase
+- `/showcase view` - View project showcases from community members
+- `/github link` - Link your GitHub profile
+- `/github view` - View GitHub profiles and recent repositories
+- `/skills add` - Add technical skill badges to your profile
+- `/skills view` - View skill badges earned by community members
 
 ## ⚙️ Configuration
 
