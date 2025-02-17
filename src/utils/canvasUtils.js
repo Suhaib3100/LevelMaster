@@ -82,48 +82,101 @@ class CanvasUtils {
     }
 
     static async createLevelUpImage(user, level) {
-        const canvas = createCanvas(800, 300);
+        const canvas = createCanvas(1000, 400);
         const ctx = canvas.getContext('2d');
 
-        // Set background
-        ctx.fillStyle = '#2F3136';
+        // Create a rich background with multiple gradients
+        const bgGradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        bgGradient.addColorStop(0, '#1a1c2c');
+        bgGradient.addColorStop(0.5, '#202340');
+        bgGradient.addColorStop(1, '#283593');
+        ctx.fillStyle = bgGradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-        // Add gradient effect
-        const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0);
-        gradient.addColorStop(0, '#4f5d7e');
-        gradient.addColorStop(1, '#5865F2');
-        ctx.fillStyle = gradient;
-        ctx.fillRect(20, 20, canvas.width - 40, canvas.height - 40);
+        // Add decorative particles
+        for (let i = 0; i < 50; i++) {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height;
+            const size = Math.random() * 4 + 1;
+            ctx.fillStyle = `rgba(255, 255, 255, ${Math.random() * 0.5})`;
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fill();
+        }
 
-        // Add user avatar
+        // Add glowing effect behind avatar
+        const glowGradient = ctx.createRadialGradient(200, 200, 50, 200, 200, 150);
+        glowGradient.addColorStop(0, 'rgba(88, 101, 242, 0.8)');
+        glowGradient.addColorStop(1, 'rgba(88, 101, 242, 0)');
+        ctx.fillStyle = glowGradient;
+        ctx.fillRect(50, 50, 300, 300);
+
+        // Add user avatar with enhanced styling
         try {
             const avatar = await loadImage(user.displayAvatarURL({ extension: 'png', size: 256 }));
             ctx.save();
+            
+            // Avatar border glow
+            ctx.shadowColor = '#5865F2';
+            ctx.shadowBlur = 15;
+            
+            // Circular avatar with border
             ctx.beginPath();
-            ctx.arc(150, 150, 80, 0, Math.PI * 2);
+            ctx.arc(200, 200, 90, 0, Math.PI * 2);
             ctx.closePath();
             ctx.clip();
-            ctx.drawImage(avatar, 70, 70, 160, 160);
+            ctx.drawImage(avatar, 110, 110, 180, 180);
+            
+            // Add border
+            ctx.strokeStyle = '#FFFFFF';
+            ctx.lineWidth = 8;
+            ctx.stroke();
+            
             ctx.restore();
         } catch (error) {
             console.error('Error loading avatar:', error);
         }
 
-        // Add text
+        // Add stylized text with shadow effects
+        ctx.textAlign = 'center';
+        
+        // Level Up text with glow
+        ctx.shadowColor = '#5865F2';
+        ctx.shadowBlur = 20;
         ctx.fillStyle = '#FFFFFF';
+        ctx.font = 'bold 80px Arial';
+        ctx.fillText('LEVEL UP!', 650, 180);
+
+        // Remove shadow for other text
+        ctx.shadowBlur = 0;
+        
+        // Username and level with gradient
+        const textGradient = ctx.createLinearGradient(400, 0, 900, 0);
+        textGradient.addColorStop(0, '#5865F2');
+        textGradient.addColorStop(1, '#FFFFFF');
+        ctx.fillStyle = textGradient;
+        ctx.font = 'bold 45px Arial';
+        ctx.fillText(`${user.username}`, 650, 240);
+        
+        // Level number with special styling
         ctx.font = 'bold 60px Arial';
-        ctx.fillText('LEVEL UP!', 300, 120);
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(`LEVEL ${level}`, 650, 310);
 
-        ctx.font = 'bold 40px Arial';
-        ctx.fillText(`${user.username} reached level ${level}!`, 300, 180);
-
-        // Add decorative elements
-        ctx.strokeStyle = '#FFFFFF';
+        // Add decorative accents
+        ctx.strokeStyle = '#5865F2';
         ctx.lineWidth = 3;
+        
+        // Left accent
         ctx.beginPath();
-        ctx.moveTo(280, 220);
-        ctx.lineTo(700, 220);
+        ctx.moveTo(400, 330);
+        ctx.lineTo(500, 330);
+        ctx.stroke();
+        
+        // Right accent
+        ctx.beginPath();
+        ctx.moveTo(800, 330);
+        ctx.lineTo(900, 330);
         ctx.stroke();
 
         return canvas.toBuffer();

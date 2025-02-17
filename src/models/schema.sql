@@ -126,3 +126,12 @@ CREATE TABLE IF NOT EXISTS user_skill_badges (
     earned_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE(user_id, guild_id, badge_id)
 );
+
+-- Guild configuration table
+CREATE TABLE IF NOT EXISTS guild_config (
+    id SERIAL PRIMARY KEY,
+    guild_id VARCHAR(255) NOT NULL UNIQUE,
+    welcome_channel_id VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
