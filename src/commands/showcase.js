@@ -93,16 +93,31 @@ module.exports = {
                     });
                 }
 
+                const projects = result.rows;
                 const embed = new EmbedBuilder()
                     .setColor('#0099ff')
-                    .setTitle(`${targetUser.username}'s Project Showcase`)
-                    .setThumbnail(targetUser.displayAvatarURL());
+                    .setTitle(`🚀 ${targetUser.username}'s Project Showcase`)
+                    .setDescription('Here are the latest projects:')
+                    .setThumbnail(targetUser.displayAvatarURL())
+                    .setFooter({ text: 'Use /showcase add to add your project', iconURL: interaction.client.user.displayAvatarURL() })
+                    .setTimestamp();
 
-                result.rows.forEach((project, index) => {
-                    embed.addFields({
-                        name: `${index + 1}. ${project.title}`,
-                        value: `${project.description}\n🔗 [View Project](${project.project_url})\n🛠️ Technologies: ${project.technologies?.join(', ') || 'Not specified'}`
-                    });
+                projects.forEach((project, index) => {
+                    const techStack = project.technologies.length
+                        ? project.technologies.map(tech => `\`${tech}\``).join(' ')
+                        : 'No technologies specified';
+
+                    embed.addFields([
+                        {
+                            name: `${index + 1}. ${project.title}`,
+                            value: `${project.description}\n\n🔗 [View Project](${project.project_url})\n🛠️ **Tech Stack:** ${techStack}\n👍 Likes: ${project.likes_count}`,
+                            inline: false
+                        }
+                    ]);
+
+                    if (project.thumbnail_url) {
+                        embed.setImage(project.thumbnail_url);
+                    }
                 });
 
                 await interaction.reply({ embeds: [embed] });

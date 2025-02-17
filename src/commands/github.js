@@ -35,7 +35,20 @@ module.exports = {
                 const response = await axios.get(`https://api.github.com/users/${githubUsername}`);
                 const githubData = response.data;
 
-                // First, check if user exists and create if not
+                // Check if the GitHub username is already linked to another user
+                const existingUser = await db.query(
+                    'SELECT user_id FROM users WHERE github_username = $1',
+                    [githubUsername]
+                );
+
+                if (existingUser.rows.length > 0 && existingUser.rows[0].user_id !== interaction.user.id) {
+                    return interaction.reply({
+                        content: `The GitHub username '${githubUsername}' is already linked to another user. Please use a different username.`,
+                        ephemeral: true
+                    });
+                }
+
+                // If username is not taken, proceed with linking
                 const userCheck = await db.query(
                     `INSERT INTO users (user_id, guild_id, github_username) 
                     VALUES ($1, $2, $3) 
@@ -101,25 +114,24 @@ module.exports = {
                 const repos = reposResponse.data;
 
                 const embed = new EmbedBuilder()
-                    .setColor('#2b3137')
-                    .setTitle(`${targetUser.username}'s GitHub Profile`)
-                    .setDescription(`[${githubData.login}](${githubData.html_url})`)
+                    .setColor('#040d21')
+                    .setAuthor({ name: githubData.name || githubUsername, iconURL: githubData.avatar_url, url: `https://github.com/${githubUsername}` })
+                    .setDescription(githubData.bio || 'No bio available')
                     .setThumbnail(githubData.avatar_url)
                     .addFields(
-                        { name: 'Repositories', value: githubData.public_repos.toString(), inline: true },
-                        { name: 'Followers', value: githubData.followers.toString(), inline: true },
-                        { name: 'Following', value: githubData.following.toString(), inline: true },
-                        { name: '\u200B', value: '**Recent Repositories**' }
-                    );
-
-                repos.forEach(repo => {
-                    embed.addFields({
-                        name: repo.name,
-                        value: `${repo.description || 'No description'}
-🔗 [View Repository](${repo.html_url})
-⭐ Stars: ${repo.stargazers_count} | 🍴 Forks: ${repo.forks_count}`
-                    });
-                });
+                        { name: '📊 Stats', value: `
+                        • 📦 Repositories: ${githubData.public_repos}
+                        • 👥 Followers: ${githubData.followers}
+                        • 👤 Following: ${githubData.following}
+                        • ⭐ Total Stars: ${githubData.public_gists}`, inline: true },
+                        { name: '🔍 Info', value: `
+                        • 🏢 Company: ${githubData.company || 'N/A'}
+                        • 📍 Location: ${githubData.location || 'N/A'}
+                        • 📧 Email: ${githubData.email || 'N/A'}
+                        • 🌐 Blog: ${githubData.blog || 'N/A'}`, inline: true }
+                    )
+                    .setFooter({ text: 'GitHub Profile • Joined', iconURL: 'https://github.githubassets.com/images/modules/logos_page/GitHub-Mark.png' })
+                    .setTimestamp(new Date(githubData.created_at));
 
                 await interaction.reply({ embeds: [embed] });
             } catch (error) {
